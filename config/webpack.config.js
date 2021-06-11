@@ -60,7 +60,10 @@ const hasJsxRuntime = (() => {
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
-module.exports = function (webpackEnv) {
+module.exports = function (
+  webpackEnv,
+  { inputFile, outputFile, componentName }
+) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
 
@@ -131,15 +134,15 @@ module.exports = function (webpackEnv) {
     bail: isEnvProduction,
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry: paths.appIndexJs,
+    entry: inputFile,
     output: {
       // The build folder.
       path: paths.appBuild,
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       filename: isEnvProduction
-        ? 'js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'js/bundle.js',
+        ? `js/${outputFile}.[contenthash:8].js`
+        : isEnvDevelopment && `js/${outputFile}.js`,
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
@@ -155,7 +158,10 @@ module.exports = function (webpackEnv) {
       jsonpFunction: `webpackJsonp${appPackageJson.name}`,
       // this defaults to 'window', but by setting it to 'this' then
       // module chunks which are built will work in web workers as well.
-      globalObject: 'this'
+      globalObject: 'this',
+
+      library: componentName,
+      libraryTarget: 'umd'
     },
     optimization: {
       minimize: isEnvProduction,
@@ -220,14 +226,7 @@ module.exports = function (webpackEnv) {
             preset: ['default', { minifyFontValues: { removeQuotes: false } }]
           }
         })
-      ],
-      // Automatically split vendor and commons
-      // https://twitter.com/wSokra/status/969633336732905474
-      // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-      splitChunks: {
-        chunks: 'all',
-        name: isEnvDevelopment
-      }
+      ]
     },
     resolve: {
       // This allows you to set a fallback for where webpack should look for modules.
@@ -480,8 +479,8 @@ module.exports = function (webpackEnv) {
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output
           // both options are optional
-          filename: 'css/[name].[contenthash:8].css',
-          chunkFilename: 'css/[name].[contenthash:8].chunk.css'
+          filename: `css/${outputFile}.[contenthash:8].css`,
+          chunkFilename: `css/${outputFile}.[contenthash:8].chunk.css`
         }),
       // Moment.js is an extremely popular library that bundles large locale files
       // by default due to how webpack interprets its code. This is a practical

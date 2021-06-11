@@ -45,8 +45,8 @@
     "webpack": "4.44.2"
   },
   "scripts": {
-    "build": "node scripts/build.js --development",
-    "prod-build": "node scripts/build.js",
+    "build": "node builder.js --development",
+    "prod-build": "node builder.js",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
